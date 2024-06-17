@@ -9,6 +9,7 @@ public class Config
 
     public static float InactiveMaxTime
     {
-        get { return JSONFile.Configclass.timeout; }
+        get 1000f;
+        //get { return JSONFile.Configclass.timeout; }
     }
 }
