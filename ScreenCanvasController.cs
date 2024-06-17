@@ -18,13 +18,13 @@ public class ScreenCanvasController : MonoBehaviour
 
     private void OnEnable()
     {
-        // Registra o método CallScreenListner como ouvinte do evento CallScreen
+        // Registra o mÃ©todo CallScreenListner como ouvinte do evento CallScreen
         ScreenManager.CallScreen += OnScreenCall;
 
     }
     private void OnDisable()
     {
-        // Remove o método CallScreenListner como ouvinte do evento CallScreen
+        // Remove o mÃ©todo CallScreenListner como ouvinte do evento CallScreen
         ScreenManager.CallScreen -= OnScreenCall;
 
     }
@@ -50,11 +50,6 @@ public class ScreenCanvasController : MonoBehaviour
                     DEBUG_CANVAS.alpha = 0;
                 }
             }
-        }
-
-        if (Input.GetKey(KeyCode.A))
-        {
-            ScreenManager.CallScreen(inicialScreen);
         }
 
         if (currentScreen != inicialScreen)
