@@ -35,6 +35,11 @@ public class CanvasScreen: MonoBehaviour
         }
         if (data.editor_turnOn)
         {
+            foreach (var screen in FindObjectsOfType<CanvasScreen>())
+            {
+                screen.TurnOff();
+            }
+        
             data.editor_turnOn = false;
             TurnOn();
         }
