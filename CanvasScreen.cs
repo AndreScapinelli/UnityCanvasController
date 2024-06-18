@@ -85,11 +85,11 @@ public class CanvasScreen: MonoBehaviour
         return canvasgroup.blocksRaycasts;
     }
 
-    protected void CallNextScreen()
+    public virtual void CallNextScreen()
     {
         ScreenManager.CallScreen(data.nextScreenName);
     }
-    protected void CallPreviusScreen()
+    public virtual void CallPreviusScreen()
     {
         ScreenManager.CallScreen(data.previusScreenName);
     }
