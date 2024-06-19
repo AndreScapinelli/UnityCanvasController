@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 using TMPro;
 
 public class ScreenCanvasController : MonoBehaviour
@@ -16,45 +15,52 @@ public class ScreenCanvasController : MonoBehaviour
     public CanvasGroup DEBUG_CANVAS;
     public TMP_Text timeOut;
 
+    [Tooltip("Lista de prefabs de telas para registrar")]
+    public List<ScreenPrefab> screenPrefabs;
+
     private void OnEnable()
     {
-        // Registra o método CallScreenListner como ouvinte do evento CallScreen
         ScreenManager.CallScreen += OnScreenCall;
-
     }
+
     private void OnDisable()
     {
-        // Remove o método CallScreenListner como ouvinte do evento CallScreen
         ScreenManager.CallScreen -= OnScreenCall;
-
     }
-    // Start is called before the first frame update
+
     void Start()
     {
         instance = this;
-        ScreenManager.SetCallScreen(inicialScreen);
+
+        // Registrar os prefabs
+        foreach (var screenPrefab in screenPrefabs)
+        {
+            if (screenPrefab.prefab != null)
+            {
+                ScreenManager.Instance.RegisterScreenPrefab(screenPrefab.screenName, screenPrefab);
+            }
+            else
+            {
+                Debug.LogError($"Prefab for screen {screenPrefab.screenName} is null");
+            }
+        }
+
+        ScreenManager.Instance.SetCallScreen(inicialScreen);
     }
-    // Update is called once per frame
+
     void Update()
     {
         if (Input.GetKeyUp(KeyCode.Escape))
         {
-            if (!DEBUG_CANVAS == null)
+            if (DEBUG_CANVAS != null)
             {
-                if (DEBUG_CANVAS.alpha == 0)
-                {
-                    DEBUG_CANVAS.alpha = 1;
-                }
-                else
-                {
-                    DEBUG_CANVAS.alpha = 0;
-                }
+                DEBUG_CANVAS.alpha = DEBUG_CANVAS.alpha == 0 ? 1 : 0;
             }
         }
 
         if (currentScreen != inicialScreen)
         {
-            inactiveTimer += Time.deltaTime * 1;
+            inactiveTimer += Time.deltaTime;
 
             if (inactiveTimer >= Config.InactiveMaxTime)
             {
@@ -65,21 +71,26 @@ public class ScreenCanvasController : MonoBehaviour
         {
             inactiveTimer = 0;
         }
-        
-        if(timeOut != null)
-        timeOut.SetText($"Time Out:{Mathf.CeilToInt(inactiveTimer)}/{Config.InactiveMaxTime}");
+
+        if (timeOut != null)
+        {
+            timeOut.SetText($"Time Out: {Mathf.CeilToInt(inactiveTimer)}/{Config.InactiveMaxTime}");
+        }
     }
+
     public void ResetGame()
     {
         Debug.Log("Tempo de inatividade extrapolado!");
         inactiveTimer = 0;
-        ScreenManager.CallScreen(inicialScreen);
+        ScreenManager.Instance.SetCallScreen(inicialScreen);
     }
+
     private void OnScreenCall(string name)
     {
         previusScreen = currentScreen;
         currentScreen = name;
     }
+
     public void NFCInputHandler(string obj)
     {
         inactiveTimer = 0;

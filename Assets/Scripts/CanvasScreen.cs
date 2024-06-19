@@ -1,12 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
 
-
 [RequireComponent(typeof(CanvasGroup))]
-public class CanvasScreen: MonoBehaviour
+public class CanvasScreen : MonoBehaviour
 {
     [System.Serializable]
     protected class ScreenData
@@ -15,53 +11,29 @@ public class CanvasScreen: MonoBehaviour
         public string screenName;
         public string previusScreenName;
         public string nextScreenName;
-        [Header("- editor -")]
-        public bool editor_turnOn = false;
-        public bool editor_turnOff = false;
     }
+
     [Tooltip("Toda tela deve ter uma base de canvas group")]
     public CanvasGroup canvasgroup;
     [SerializeField] protected ScreenData data;
-    public virtual void OnValidate()
-    {
-        //if (canvasgroup == null)
-        //{
-        //    canvasgroup = GetComponent<CanvasGroup>();
-        //}
-        if (data.editor_turnOff)
-        {
-            data.editor_turnOff = false;
-            TurnOff();
-        }
-        if (data.editor_turnOn)
-        {
-            foreach (var screen in FindObjectsOfType<CanvasScreen>())
-            {
-                screen.TurnOff();
-            }
-        
-            data.editor_turnOn = false;
-            TurnOn();
-        }
-    }
+
     public virtual void OnEnable()
     {
         if (canvasgroup == null)
         {
             canvasgroup = GetComponent<CanvasGroup>();
         }
-        // Registra o m騁odo CallScreenListner como ouvinte do evento CallScreen
         ScreenManager.CallScreen += CallScreenListner;
     }
+
     public virtual void OnDisable()
     {
-        // Remove o m騁odo CallScreenListner como ouvinte do evento CallScreen
         ScreenManager.CallScreen -= CallScreenListner;
     }
 
     public virtual void CallScreenListner(string screenName)
     {
-        if (screenName == this.data.screenName)
+        if (screenName == data.screenName)
         {
             TurnOn();
         }
@@ -70,16 +42,27 @@ public class CanvasScreen: MonoBehaviour
             TurnOff();
         }
     }
+
+    public void Setup(ScreenPrefab screenPrefab)
+    {
+        data.screenName = screenPrefab.screenName;
+        data.nextScreenName = screenPrefab.nextScreenName;
+        data.previusScreenName = screenPrefab.previusScreenName;
+    }
+
     public virtual void TurnOn()
     {
         canvasgroup.alpha = 1;
         canvasgroup.blocksRaycasts = true;
     }
+
     public virtual void TurnOff()
     {
         canvasgroup.alpha = 0;
         canvasgroup.blocksRaycasts = false;
+        Destroy(this.gameObject);
     }
+
     public bool IsOn()
     {
         return canvasgroup.blocksRaycasts;
@@ -87,10 +70,27 @@ public class CanvasScreen: MonoBehaviour
 
     public virtual void CallNextScreen()
     {
-        ScreenManager.CallScreen(data.nextScreenName);
+        var nextScreenPrefab = ScreenManager.Instance.GetScreenPrefab(data.nextScreenName);
+        if (nextScreenPrefab != null)
+        {
+            ScreenManager.Instance.SetCallScreen(data.nextScreenName);
+        }
+        else
+        {
+            Debug.LogError($"Next screen prefab not found for {data.screenName}");
+        }
     }
+
     public virtual void CallPreviusScreen()
     {
-        ScreenManager.CallScreen(data.previusScreenName);
+        var previousScreenPrefab = ScreenManager.Instance.GetScreenPrefab(data.previusScreenName);
+        if (previousScreenPrefab != null)
+        {
+            ScreenManager.Instance.SetCallScreen(data.previusScreenName);
+        }
+        else
+        {
+            Debug.LogError($"Previous screen prefab not found for {data.screenName}");
+        }
     }
 }
