@@ -65,6 +65,8 @@ public class ScreenCanvasController : MonoBehaviour
         {
             inactiveTimer = 0;
         }
+        
+        if(timeOut != null)
         timeOut.SetText($"Time Out:{Mathf.CeilToInt(inactiveTimer)}/{Config.InactiveMaxTime}");
     }
     public void ResetGame()
